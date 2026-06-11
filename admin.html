@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academia da Extensão — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:      #1A6B42;
+  --green-mid:  #229954;
+  --green-pale: #E6F7EE;
+  --blue:       #1A3E7C;
+  --blue-mid:   #2563EB;
+  --blue-pale:  #EBF2FF;
+  --white:      #FFFFFF;
+  --off-white:  #F7F9FC;
+  --gray-100:   #EEF1F6;
+  --gray-200:   #DDE2EA;
+  --gray-400:   #9AAAB8;
+  --gray-600:   #4A5568;
+  --text:       #111827;
+  --danger:     #DC2626;
+  --danger-pale:#FEE2E2;
+  --r:          12px;
+  --shadow-sm:  0 2px 10px rgba(26,62,124,.08);
+  --shadow-md:  0 8px 28px rgba(26,62,124,.13);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Nunito', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; }
+
+/* ─── TELA DE LOGIN ──────────────────────────────── */
+#login-screen {
+  min-height: 100vh;
+  background: linear-gradient(140deg, #0B2545 0%, #0E4D33 100%);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.login-box {
+  background: white; border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.3);
+}
+.login-logo {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
+}
+.login-logo-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--green), var(--blue));
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+}
+.login-logo-text strong { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--blue); display: block; }
+.login-logo-text small { font-size: 11px; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+.login-box h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.login-box p { color: var(--gray-600); font-size: 14px; margin-bottom: 28px; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 7px; }
+.field input {
+  width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: 10px;
+  font-family: 'Nunito', sans-serif; font-size: 14px; color: var(--text); transition: border-color .18s;
+}
+.field input:focus { outline: none; border-color: var(--blue-mid); }
+.btn-primary {
+  width: 100%; padding: 14px; background: var(--green); color: white; border: none; border-radius: 10px;
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; cursor: pointer; transition: background .18s;
+  margin-top: 8px;
+}
+.btn-primary:hover { background: var(--green-mid); }
+.btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+.login-error { background: var(--danger-pale); color: var(--danger); border-radius: 9px; padding: 10px 14px; font-size: 13px; font-weight: 700; margin-top: 14px; display: none; }
+.login-error.show { display: block; }
+
+/* ─── TELA ADMIN ─────────────────────────────────── */
+#admin-screen { display: none; min-height: 100vh; }
+
+/* ─── HEADER ─────────────────────────────────────── */
+.admin-header {
+  background: white; border-bottom: 1px solid var(--gray-200);
+  padding: 0 32px; height: 64px; position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+}
+.admin-logo { display: flex; align-items: center; gap: 10px; }
+.admin-logo-icon { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, var(--green), var(--blue)); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.admin-logo strong { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--blue); }
+.admin-logo small { font-size: 11px; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.header-nav { display: flex; align-items: center; gap: 6px; }
+.nav-btn {
+  display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9px;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700;
+  background: none; border: none; color: var(--gray-600); cursor: pointer; transition: all .18s;
+}
+.nav-btn:hover, .nav-btn.active { background: var(--gray-100); color: var(--blue); }
+.nav-btn.active { color: var(--green); background: var(--green-pale); }
+.nav-divider { width: 1px; height: 24px; background: var(--gray-200); margin: 0 4px; }
+.btn-logout {
+  display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9px;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700;
+  background: none; border: 1px solid var(--gray-200); color: var(--gray-600); cursor: pointer; transition: all .18s;
+}
+.btn-logout:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-pale); }
+.user-badge { font-size: 13px; font-weight: 700; color: var(--gray-400); }
+
+/* ─── MAIN CONTENT ───────────────────────────────── */
+.admin-main { max-width: 1100px; margin: 0 auto; padding: 40px 32px; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.section-sub { color: var(--gray-600); font-size: 14px; margin-bottom: 28px; }
+
+/* ─── STATS ──────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-box { background: white; border: 1px solid var(--gray-200); border-radius: var(--r); padding: 20px; box-shadow: var(--shadow-sm); }
+.stat-box .val { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--blue); line-height: 1; margin-bottom: 5px; }
+.stat-box .lbl { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--gray-400); }
+
+/* ─── PROJECT LIST ───────────────────────────────── */
+.list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.btn-add {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--green); color: white; border: none; border-radius: 10px;
+  padding: 11px 22px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+  cursor: pointer; transition: all .18s;
+}
+.btn-add:hover { background: var(--green-mid); transform: translateY(-1px); }
+.project-table { background: white; border-radius: var(--r); border: 1px solid var(--gray-200); overflow: hidden; box-shadow: var(--shadow-sm); }
+.project-row {
+  display: grid; grid-template-columns: 48px 1fr auto auto auto; gap: 16px;
+  align-items: center; padding: 16px 20px;
+  border-bottom: 1px solid var(--gray-100); transition: background .15s;
+}
+.project-row:last-child { border-bottom: none; }
+.project-row:hover { background: var(--off-white); }
+.proj-emoji { font-size: 28px; }
+.proj-info {}
+.proj-title { font-weight: 800; font-size: 15px; color: var(--text); margin-bottom: 3px; }
+.proj-meta { font-size: 12px; color: var(--gray-400); font-weight: 700; }
+.proj-year { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 100px; background: var(--blue-pale); color: var(--blue); }
+.proj-team { font-size: 12px; font-weight: 700; color: var(--gray-600); }
+.btn-edit, .btn-del {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 8px; border: none;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; transition: all .18s;
+}
+.btn-edit { background: var(--blue-pale); color: var(--blue); }
+.btn-edit:hover { background: var(--blue); color: white; }
+.btn-del { background: var(--danger-pale); color: var(--danger); }
+.btn-del:hover { background: var(--danger); color: white; }
+.empty-list { text-align: center; padding: 64px 20px; color: var(--gray-400); }
+.empty-list h3 { font-size: 17px; font-weight: 700; color: var(--gray-600); margin-bottom: 8px; }
+
+/* ─── FORM ───────────────────────────────────────── */
+.form-card { background: white; border-radius: var(--r); border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); overflow: hidden; }
+.form-section { padding: 24px 28px; border-bottom: 1px solid var(--gray-100); }
+.form-section:last-child { border-bottom: none; }
+.form-section-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 20px; display: flex; align-items: center; gap: 9px; }
+.form-section-title::before { content:''; display:block; width:4px; height:18px; border-radius:2px; background: linear-gradient(to bottom, var(--green), var(--blue)); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 7px; }
+.form-group label span { font-weight: 600; color: var(--gray-400); font-size: 12px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 11px 14px; border: 2px solid var(--gray-200); border-radius: 9px;
+  font-family: 'Nunito', sans-serif; font-size: 14px; color: var(--text); transition: border-color .18s; background: white;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--blue-mid); }
+.form-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+/* Gradient presets */
+.gradient-opts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.grad-opt { display: flex; align-items: center; gap: 0; cursor: pointer; }
+.grad-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.grad-swatch {
+  width: 36px; height: 36px; border-radius: 9px; transition: all .18s;
+  border: 3px solid transparent; box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+.grad-opt input:checked + .grad-swatch { border-color: var(--text); transform: scale(1.1); }
+
+/* Tags checkboxes */
+.tags-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.tag-opt { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.tag-opt input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--green); }
+.tag-opt span { font-size: 13px; font-weight: 700; color: var(--gray-600); }
+
+/* Dynamic rows */
+.dynamic-list { display: flex; flex-direction: column; gap: 10px; }
+.dyn-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--off-white); border: 1px solid var(--gray-200); border-radius: 9px; padding: 10px 14px;
+}
+.dyn-row .form-input, .dyn-row .form-select { margin: 0; background: white; }
+.dyn-row .form-input { flex: 1; }
+.dyn-del {
+  flex-shrink: 0; width: 32px; height: 32px; border: none; border-radius: 7px;
+  background: var(--danger-pale); color: var(--danger); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: all .18s;
+}
+.dyn-del:hover { background: var(--danger); color: white; }
+.btn-dyn-add {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 9px; border: 2px dashed var(--gray-200);
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700;
+  color: var(--gray-600); background: none; cursor: pointer; transition: all .18s;
+  margin-top: 4px;
+}
+.btn-dyn-add:hover { border-color: var(--green); color: var(--green); background: var(--green-pale); }
+
+/* Form footer */
+.form-footer {
+  display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+  padding: 20px 28px; background: var(--off-white); border-top: 1px solid var(--gray-200);
+}
+.btn-cancel {
+  padding: 11px 22px; border-radius: 10px; border: 2px solid var(--gray-200);
+  font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+  background: white; color: var(--gray-600); cursor: pointer; transition: all .18s;
+}
+.btn-cancel:hover { border-color: var(--gray-400); color: var(--text); }
+.btn-save {
+  padding: 11px 28px; border-radius: 10px; border: none;
+  background: var(--green); color: white;
+  font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+  cursor: pointer; transition: all .18s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-save:hover { background: var(--green-mid); }
+.btn-save:disabled { opacity: .6; cursor: not-allowed; }
+
+/* ─── SETTINGS ───────────────────────────────────── */
+.settings-card { background: white; border-radius: var(--r); border: 1px solid var(--gray-200); padding: 28px; max-width: 480px; box-shadow: var(--shadow-sm); }
+.settings-card h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.settings-card p { color: var(--gray-600); font-size: 14px; margin-bottom: 24px; }
+.msg-success { background: var(--green-pale); color: var(--green); border-radius: 9px; padding: 10px 14px; font-size: 13px; font-weight: 700; display: none; margin-top: 12px; }
+.msg-success.show { display: block; }
+.msg-error { background: var(--danger-pale); color: var(--danger); border-radius: 9px; padding: 10px 14px; font-size: 13px; font-weight: 700; display: none; margin-top: 12px; }
+.msg-error.show { display: block; }
+
+/* ─── TOAST ──────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  padding: 14px 20px; border-radius: 12px;
+  font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+  box-shadow: var(--shadow-md); transform: translateY(80px); opacity: 0;
+  transition: all .3s cubic-bezier(.4,0,.2,1);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok  { background: var(--green); color: white; }
+.toast.err { background: var(--danger); color: white; }
+
+/* ─── CONFIRM MODAL ──────────────────────────────── */
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(8,16,32,.6); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.confirm-overlay.show { opacity: 1; pointer-events: all; }
+.confirm-box {
+  background: white; border-radius: 16px; padding: 32px; max-width: 380px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+.confirm-box h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+.confirm-box p { color: var(--gray-600); font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+.confirm-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-confirm-cancel { padding: 10px 20px; border-radius: 9px; border: 2px solid var(--gray-200); background: white; color: var(--gray-600); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; }
+.btn-confirm-ok { padding: 10px 20px; border-radius: 9px; border: none; background: var(--danger); color: white; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; }
+
+@media(max-width: 768px){
+  .admin-main { padding: 24px 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  .project-row { grid-template-columns: 40px 1fr; }
+  .proj-year, .proj-team { display: none; }
+  .admin-header { padding: 0 16px; }
+  .header-nav .nav-btn span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ LOGIN ════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="logo.png" alt="Academia da Extensão" style="height:56px;object-fit:contain;">
+      <div class="login-logo-text" style="margin-left:4px">
+        <strong>Academia da Extensão</strong>
+        <small>Painel Admin</small>
+      </div>
+    </div>
+    <h1>Entrar</h1>
+    <p>Acesse o painel para gerenciar os projetos de extensão.</p>
+    <div class="field">
+      <label for="loginUser">Usuário</label>
+      <input id="loginUser" type="text" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="loginPass">Senha</label>
+      <input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="loginBtn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="loginError">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- ════════════════════ ADMIN ════════════════════ -->
+<div id="admin-screen">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="admin-logo">
+      <img src="logo.png" alt="Academia da Extensão" style="height:40px;object-fit:contain;">
+      <div>
+        <strong>Academia da Extensão</strong>
+        <small> — Admin</small>
+      </div>
+    </div>
+    <div class="header-nav">
+      <span class="user-badge" id="userBadge"></span>
+      <div class="nav-divider"></div>
+      <button class="nav-btn active" id="navProj" onclick="showSection('list')">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Projetos</span>
+      </button>
+      <button class="nav-btn" id="navTags" onclick="showSection('tags')">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        <span>Categorias</span>
+      </button>
+      <button class="nav-btn" id="navCfg" onclick="showSection('settings')">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Configurações</span>
+      </button>
+      <div class="nav-divider"></div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="admin-main">
+
+    <!-- ─── SEÇÃO: LISTA ─── -->
+    <section id="sec-list">
+      <div class="stats-row" id="adminStats">
+        <div class="stat-box"><div class="val" id="aStat1">–</div><div class="lbl">Projetos</div></div>
+        <div class="stat-box"><div class="val" id="aStat2">–</div><div class="lbl">Equipes</div></div>
+        <div class="stat-box"><div class="val" id="aStat3">–</div><div class="lbl">Arquivos</div></div>
+        <div class="stat-box"><div class="val" id="aStat4">–</div><div class="lbl">Impactados</div></div>
+      </div>
+
+      <div class="list-header">
+        <div>
+          <h2 class="section-title">Projetos de Extensão</h2>
+          <p class="section-sub">Gerencie todos os projetos cadastrados no repositório.</p>
+        </div>
+        <button class="btn-add" onclick="openForm(null)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo Projeto
+        </button>
+      </div>
+
+      <div class="project-table" id="projectTable">
+        <div class="empty-list"><h3>Carregando…</h3></div>
+      </div>
+    </section>
+
+    <!-- ─── SEÇÃO: FORMULÁRIO ─── -->
+    <section id="sec-form" style="display:none">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:24px;">
+        <button onclick="showSection('list')" style="background:var(--gray-100);border:none;border-radius:9px;padding:9px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Voltar
+        </button>
+        <div>
+          <h2 class="section-title" id="formTitle">Novo Projeto</h2>
+          <p class="section-sub" style="margin:0">Preencha os dados do projeto de extensão.</p>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <input type="hidden" id="editId">
+
+        <!-- Informações Básicas -->
+        <div class="form-section">
+          <div class="form-section-title">Informações Básicas</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fTitle">Título do Projeto</label>
+              <input id="fTitle" class="form-input" type="text" placeholder="Ex: Inclusão Digital para Idosos">
+            </div>
+            <div class="form-group">
+              <label for="fTeam">Nome da Equipe</label>
+              <input id="fTeam" class="form-input" type="text" placeholder="Ex: Equipe TechVida">
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label for="fYear">Ano/Semestre <span>(ex: 2024.1)</span></label>
+              <input id="fYear" class="form-input" type="text" placeholder="2024.1">
+            </div>
+            <div class="form-group">
+              <label for="fMembers">Nº de Membros</label>
+              <input id="fMembers" class="form-input" type="number" min="1" placeholder="5">
+            </div>
+            <div class="form-group">
+              <label for="fEmoji">Emoji do Projeto</label>
+              <input id="fEmoji" class="form-input" type="text" placeholder="📱" maxlength="4">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fPeriod">Período Completo <span>(exibido no modal)</span></label>
+            <input id="fPeriod" class="form-input" type="text" placeholder="Ex: 2024.1 — Semestre Primavera">
+          </div>
+        </div>
+
+        <!-- Visual -->
+        <div class="form-section">
+          <div class="form-section-title">Visual do Card</div>
+          <div class="form-group">
+            <label>Cor de Fundo do Card</label>
+            <div class="gradient-opts" id="gradOpts">
+              <label class="grad-opt" title="Verde → Azul">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#1A6B42,#2563EB)" checked>
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#1A6B42,#2563EB)"></div>
+              </label>
+              <label class="grad-opt" title="Azul → Roxo">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#1A3E7C,#6D28D9)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#1A3E7C,#6D28D9)"></div>
+              </label>
+              <label class="grad-opt" title="Verde Escuro">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#065F46,#1A6B42)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#065F46,#1A6B42)"></div>
+              </label>
+              <label class="grad-opt" title="Âmbar → Laranja">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#B45309,#DC8A0A)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#B45309,#DC8A0A)"></div>
+              </label>
+              <label class="grad-opt" title="Ciano → Azul">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#0F7592,#1A3E7C)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#0F7592,#1A3E7C)"></div>
+              </label>
+              <label class="grad-opt" title="Índigo → Azul">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#4338CA,#1A3E7C)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#4338CA,#1A3E7C)"></div>
+              </label>
+              <label class="grad-opt" title="Vermelho → Rosa">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#B91C1C,#9D174D)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#B91C1C,#9D174D)"></div>
+              </label>
+              <label class="grad-opt" title="Roxo → Rosa">
+                <input type="radio" name="grad" value="linear-gradient(135deg,#7C3AED,#DB2777)">
+                <div class="grad-swatch" style="background:linear-gradient(135deg,#7C3AED,#DB2777)"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tags e Chips -->
+        <div class="form-section">
+          <div class="form-section-title">Categorias e Tags</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tags de Filtro <span>(aparecem nos filtros do site)</span></label>
+              <div class="tags-group" id="tagsGroup">
+                <span style="color:var(--gray-400);font-size:13px">Carregando categorias...</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Chips do Card <span>(etiquetas coloridas no card)</span></label>
+              <div class="dynamic-list" id="chipsList"></div>
+              <button class="btn-dyn-add" onclick="addChip()">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Adicionar Chip
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descrições -->
+        <div class="form-section">
+          <div class="form-section-title">Descrições</div>
+          <div class="form-group">
+            <label for="fDesc">Descrição Resumida <span>(aparece no card e no modal)</span></label>
+            <textarea id="fDesc" class="form-textarea" placeholder="Descreva o projeto em 2-3 frases. Esta descrição aparece no card e no início do modal."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="fHow">Como Ocorreu <span>(detalhamento no modal)</span></label>
+            <textarea id="fHow" class="form-textarea" placeholder="Descreva como o projeto foi realizado: locais, metodologia, atividades, parcerias…"></textarea>
+          </div>
+        </div>
+
+        <!-- Dados de Impacto -->
+        <div class="form-section">
+          <div class="form-section-title">Dados de Impacto</div>
+          <p style="font-size:13px;color:var(--gray-600);margin-bottom:14px;">Números que mostram o resultado do projeto (ex: 240 idosos atendidos, 12 oficinas…)</p>
+          <div class="dynamic-list" id="dataList"></div>
+          <button class="btn-dyn-add" onclick="addData()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar Dado
+          </button>
+        </div>
+
+        <!-- Arquivos -->
+        <div class="form-section">
+          <div class="form-section-title">Arquivos Disponíveis</div>
+          <p style="font-size:13px;color:var(--gray-600);margin-bottom:14px;">
+            Adicione os arquivos do projeto. No campo URL, cole o link do Google Drive, GitHub ou onde o arquivo está hospedado.
+          </p>
+          <div class="dynamic-list" id="filesList"></div>
+          <button class="btn-dyn-add" onclick="addFile()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar Arquivo
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="form-footer">
+          <button class="btn-cancel" onclick="showSection('list')">Cancelar</button>
+          <button class="btn-save" id="saveBtn" onclick="saveProject()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg>
+            Salvar Projeto
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SEÇÃO: CONFIGURAÇÕES ─── -->
+    <section id="sec-settings" style="display:none">
+      <h2 class="section-title">Configurações</h2>
+      <p class="section-sub">Gerencie as configurações da sua conta de administrador.</p>
+
+      <div class="settings-card">
+        <h3>Alterar Senha</h3>
+        <p>Por segurança, use uma senha com pelo menos 6 caracteres.</p>
+        <div class="form-group">
+          <label for="pwCurrent">Senha Atual</label>
+          <input id="pwCurrent" class="form-input" type="password" placeholder="Senha atual">
+        </div>
+        <div class="form-group">
+          <label for="pwNew">Nova Senha</label>
+          <input id="pwNew" class="form-input" type="password" placeholder="Nova senha (mín. 6 caracteres)">
+        </div>
+        <div class="form-group">
+          <label for="pwConfirm">Confirmar Nova Senha</label>
+          <input id="pwConfirm" class="form-input" type="password" placeholder="Repita a nova senha">
+        </div>
+        <button class="btn-primary" onclick="changePassword()" style="margin-top:8px">Alterar Senha</button>
+        <div class="msg-success" id="pwSuccess">✅ Senha alterada com sucesso!</div>
+        <div class="msg-error" id="pwError"></div>
+      </div>
+    </section>
+
+    <!-- ─── SEÇÃO: CATEGORIAS ─── -->
+    <section id="sec-tags" style="display:none">
+      <h2 class="section-title">Categorias e Tags</h2>
+      <p class="section-sub">Gerencie as categorias que aparecem nos filtros do site principal. Ao excluir, a categoria some dos filtros mas os projetos que a usam não são afetados.</p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start">
+
+        <!-- Lista de categorias -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="form-section-title">Categorias Existentes</div>
+            <div id="tagsList" style="display:flex;flex-direction:column;gap:10px">
+              <p style="color:var(--gray-400);font-size:13px">Carregando...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Criar nova categoria -->
+        <div class="form-card">
+          <div class="form-section">
+            <div class="form-section-title">Nova Categoria</div>
+            <p style="color:var(--gray-600);font-size:13px;margin-bottom:16px">
+              O filtro será criado automaticamente no site principal após salvar.
+            </p>
+            <div class="form-group">
+              <label for="newTagLabel">Nome da Categoria</label>
+              <input id="newTagLabel" class="form-input" type="text" placeholder="Ex: Inovação, Cultura, Esporte…">
+            </div>
+            <button class="btn-save" onclick="createTag()" style="margin-top:4px">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Criar Categoria
+            </button>
+            <div id="tagMsg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700"></div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Confirm Modal -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Excluir Projeto</h3>
+    <p id="confirmMsg"></p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-confirm-ok" id="confirmOkBtn">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ JS ════════════════════ -->
+<script>
+/* ── TOKEN / ESTADO ─────────────────────────────────────── */
+let token = localStorage.getItem('ifce_token') || '';
+let allProjects = [];
+
+/* ── HELPERS ────────────────────────────────────────────── */
+function api(path, method='GET', body=null){
+  const opts = { method, headers: { 'Content-Type':'application/json' } };
+  if(token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if(body)  opts.body = JSON.stringify(body);
+  return fetch('/api' + path, opts)
+    .then(r => r.json().then(d => ({ok: r.ok, data: d, status: r.status})))
+    .catch(() => ({ ok: false, data: { error: 'Servidor não encontrado. Verifique se o npm start está rodando.' }, status: 0 }));
+}
+
+function toast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function showSection(sec){
+  ['list','form','settings','tags'].forEach(s=>{
+    document.getElementById('sec-'+s).style.display = s===sec ? '' : 'none';
+  });
+  document.getElementById('navProj').classList.toggle('active', sec==='list'||sec==='form');
+  document.getElementById('navTags').classList.toggle('active', sec==='tags');
+  document.getElementById('navCfg').classList.toggle('active', sec==='settings');
+  if(sec==='tags') loadTagsSection();
+}
+
+/* ── LOGIN ──────────────────────────────────────────────── */
+async function doLogin(){
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  err.classList.remove('show');
+
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+
+  const {ok, data} = await api('/auth/login','POST',{username,password});
+  if(ok){
+    token = data.token;
+    localStorage.setItem('ifce_token', token);
+    localStorage.setItem('ifce_user', data.username);
+    showAdmin();
+  } else {
+    err.textContent = data.error || 'Usuário ou senha incorretos.';
+    err.classList.add('show');
+    btn.disabled=false; btn.textContent='Entrar';
+  }
+}
+
+// Enter no login
+['loginUser','loginPass'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+});
+
+function doLogout(){
+  localStorage.removeItem('ifce_token');
+  localStorage.removeItem('ifce_user');
+  token='';
+  document.getElementById('admin-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+/* ── INIT ───────────────────────────────────────────────── */
+async function showAdmin(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-screen').style.display='block';
+  document.getElementById('userBadge').textContent = '👤 ' + (localStorage.getItem('ifce_user') || 'admin');
+  await loadProjects();
+  loadAdminStats();
+}
+
+// Auto-login se já tem token
+if(token){
+  api('/projects').then(({ok})=>{ ok ? showAdmin() : doLogout(); });
+}
+
+/* ── CARREGAR PROJETOS ──────────────────────────────────── */
+async function loadProjects(){
+  const {ok, data} = await api('/projects');
+  if(!ok){ toast('Erro ao carregar projetos','err'); return; }
+  allProjects = data;
+  renderTable(data);
+}
+
+async function loadAdminStats(){
+  const {ok, data} = await api('/stats');
+  if(!ok) return;
+  document.getElementById('aStat1').textContent = data.projects;
+  document.getElementById('aStat2').textContent = data.teams;
+  document.getElementById('aStat3').textContent = data.files;
+  document.getElementById('aStat4').textContent = data.impact + '+';
+}
+
+function renderTable(list){
+  const t = document.getElementById('projectTable');
+  if(!list.length){
+    t.innerHTML = `<div class="empty-list"><h3>Nenhum projeto cadastrado</h3><p>Clique em "Novo Projeto" para adicionar o primeiro.</p></div>`;
+    return;
+  }
+  t.innerHTML = list.map(p=>`
+    <div class="project-row">
+      <div class="proj-emoji">${p.emoji}</div>
+      <div class="proj-info">
+        <div class="proj-title">${p.title}</div>
+        <div class="proj-meta">${p.team} · ${p.files.length} arquivo(s)</div>
+      </div>
+      <div class="proj-year">${p.year}</div>
+      <button class="btn-edit" onclick="openForm(${p.id})">✏️ Editar</button>
+      <button class="btn-del"  onclick="askDelete(${p.id},'${p.title.replace(/'/g,"\\'")}')">🗑️ Excluir</button>
+    </div>
+  `).join('');
+}
+
+/* ── CONFIRM DELETE ─────────────────────────────────────── */
+let confirmCallback = null;
+function askDelete(id, name){
+  document.getElementById('confirmMsg').textContent = `Tem certeza que deseja excluir "${name}"? Esta ação não pode ser desfeita.`;
+  document.getElementById('confirmOverlay').classList.add('show');
+  confirmCallback = ()=> deleteProject(id);
+  document.getElementById('confirmOkBtn').onclick = ()=>{ closeConfirm(); confirmCallback(); };
+}
+function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('show'); }
+
+async function deleteProject(id){
+  const {ok} = await api('/projects/'+id,'DELETE');
+  if(ok){ toast('Projeto excluído!'); await loadProjects(); loadAdminStats(); }
+  else toast('Erro ao excluir','err');
+}
+
+/* ── FORM: ABRIR ────────────────────────────────────────── */
+function openForm(id){
+  document.getElementById('editId').value = id || '';
+  document.getElementById('formTitle').textContent = id ? 'Editar Projeto' : 'Novo Projeto';
+
+  if(id){
+    const p = allProjects.find(x=>x.id===id);
+    if(p) fillForm(p);
+  } else {
+    clearForm();
+  }
+  showSection('form');
+}
+
+function clearForm(){
+  ['fTitle','fTeam','fYear','fMembers','fEmoji','fPeriod','fDesc','fHow'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.querySelector('[name="grad"]').checked=true;
+  document.getElementById('chipsList').innerHTML='';
+  document.getElementById('dataList').innerHTML='';
+  document.getElementById('filesList').innerHTML='';
+  loadTagsForForm([]);
+}
+
+function fillForm(p){
+  document.getElementById('fTitle').value   = p.title;
+  document.getElementById('fTeam').value    = p.team;
+  document.getElementById('fYear').value    = p.year;
+  document.getElementById('fMembers').value = p.members;
+  document.getElementById('fEmoji').value   = p.emoji;
+  document.getElementById('fPeriod').value  = p.period;
+  document.getElementById('fDesc').value    = p.desc;
+  document.getElementById('fHow').value     = p.how;
+
+  // Gradient
+  const radios = document.querySelectorAll('[name="grad"]');
+  radios.forEach(r=>{ r.checked = (r.value===p.gradient); });
+
+  // Tags dinâmicas
+  loadTagsForForm(p.tags || []);
+
+  // Chips
+  document.getElementById('chipsList').innerHTML='';
+  (p.chips||[]).forEach(c=>addChip(c.l, c.c));
+
+  // Data
+  document.getElementById('dataList').innerHTML='';
+  (p.data||[]).forEach(d=>addData(d.v, d.l));
+
+  // Files
+  document.getElementById('filesList').innerHTML='';
+  (p.files||[]).forEach(f=>addFile(f.n, f.t, f.s, f.url));
+}
+
+/* ── DYNAMIC ROWS ───────────────────────────────────────── */
+function addChip(label='', color='chip-g'){
+  const row = document.createElement('div');
+  row.className='dyn-row';
+  row.innerHTML=`
+    <input class="form-input" type="text" placeholder="Ex: Tecnologia" value="${escHtml(label)}">
+    <select class="form-select" style="width:140px">
+      <option value="chip-g" ${color==='chip-g'?'selected':''}>🟢 Verde</option>
+      <option value="chip-b" ${color==='chip-b'?'selected':''}>🔵 Azul</option>
+      <option value="chip-o" ${color==='chip-o'?'selected':''}>🟠 Âmbar</option>
+      <option value="chip-p" ${color==='chip-p'?'selected':''}>🟣 Roxo</option>
+      <option value="chip-r" ${color==='chip-r'?'selected':''}>🔴 Vermelho</option>
+    </select>
+    <button class="dyn-del" onclick="this.parentElement.remove()" title="Remover">✕</button>
+  `;
+  document.getElementById('chipsList').appendChild(row);
+}
+
+function addData(val='', label=''){
+  const row = document.createElement('div');
+  row.className='dyn-row';
+  row.innerHTML=`
+    <input class="form-input" type="text" placeholder="Valor (ex: 240)" value="${escHtml(val)}" style="max-width:140px">
+    <input class="form-input" type="text" placeholder="Legenda (ex: Alunos atendidos)" value="${escHtml(label)}">
+    <button class="dyn-del" onclick="this.parentElement.remove()" title="Remover">✕</button>
+  `;
+  document.getElementById('dataList').appendChild(row);
+}
+
+function addFile(name='', type='pdf', size='', url=''){
+  const row = document.createElement('div');
+  row.className='dyn-row';
+  row.style.flexWrap='wrap';
+  row.innerHTML=`
+    <input class="form-input" type="text" placeholder="Nome do arquivo" value="${escHtml(name)}" style="flex:2;min-width:160px">
+    <select class="form-select" style="width:110px">
+      <option value="pdf"  ${type==='pdf' ?'selected':''}>📄 PDF</option>
+      <option value="code" ${type==='code'?'selected':''}>💾 Código</option>
+      <option value="zip"  ${type==='zip' ?'selected':''}>📦 ZIP</option>
+      <option value="data" ${type==='data'?'selected':''}>📈 Dados</option>
+    </select>
+    <input class="form-input" type="text" placeholder="Tamanho (ex: 2,4 MB)" value="${escHtml(size)}" style="max-width:140px">
+    <input class="form-input" type="url" placeholder="URL do arquivo (Google Drive, GitHub…)" value="${escHtml(url)}" style="flex:3;min-width:200px">
+    <button class="dyn-del" onclick="this.parentElement.remove()" title="Remover">✕</button>
+  `;
+  document.getElementById('filesList').appendChild(row);
+}
+
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+/* ── COLETAR DADOS DO FORM ──────────────────────────────── */
+function collectForm(){
+  const gradient = document.querySelector('[name="grad"]:checked')?.value || 'linear-gradient(135deg,#1A6B42,#2563EB)';
+  const tags = [...document.querySelectorAll('[name="tag"]:checked')].map(c=>c.value);
+
+  const chips = [...document.querySelectorAll('#chipsList .dyn-row')].map(row=>{
+    const [inp, sel] = row.querySelectorAll('input, select');
+    return { l: inp.value.trim(), c: sel.value };
+  }).filter(c=>c.l);
+
+  const data = [...document.querySelectorAll('#dataList .dyn-row')].map(row=>{
+    const [v, l] = row.querySelectorAll('input');
+    return { v: v.value.trim(), l: l.value.trim() };
+  }).filter(d=>d.l);
+
+  const files = [...document.querySelectorAll('#filesList .dyn-row')].map(row=>{
+    const inputs = row.querySelectorAll('input'); // [nome, tamanho, url]
+    const t = row.querySelector('select').value;
+    return {
+      n:   inputs[0]?.value.trim() || '',
+      t,
+      s:   inputs[1]?.value.trim() || '',
+      url: inputs[2]?.value.trim() || ''
+    };
+  }).filter(f=>f.n);
+
+  return {
+    title:   document.getElementById('fTitle').value.trim(),
+    team:    document.getElementById('fTeam').value.trim(),
+    year:    document.getElementById('fYear').value.trim(),
+    members: parseInt(document.getElementById('fMembers').value)||1,
+    emoji:   document.getElementById('fEmoji').value.trim()||'📚',
+    period:  document.getElementById('fPeriod').value.trim(),
+    desc:    document.getElementById('fDesc').value.trim(),
+    how:     document.getElementById('fHow').value.trim(),
+    gradient, tags, chips, data, files
+  };
+}
+
+/* ── SALVAR ─────────────────────────────────────────────── */
+async function saveProject(){
+  const btn = document.getElementById('saveBtn');
+  try {
+    const body = collectForm();
+    if(!body.title||!body.team||!body.year){
+      toast('Preencha Título, Equipe e Ano antes de salvar.','err'); return;
+    }
+
+    btn.disabled=true; btn.textContent='Salvando…';
+
+    const id = document.getElementById('editId').value;
+    const {ok, data} = id
+      ? await api('/projects/'+id, 'PUT', body)
+      : await api('/projects', 'POST', body);
+
+    if(ok){
+      toast(id ? 'Projeto atualizado! ✅' : 'Projeto criado! ✅');
+      await loadProjects();
+      loadAdminStats();
+      showSection('list');
+    } else {
+      toast(data.error || 'Erro ao salvar. Verifique se o servidor está rodando.','err');
+    }
+  } catch(err) {
+    console.error('Erro ao salvar projeto:', err);
+    toast('Erro inesperado: ' + err.message, 'err');
+  } finally {
+    btn.disabled=false;
+    btn.innerHTML=`<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20,6 9,17 4,12"/></svg> Salvar Projeto`;
+  }
+}
+
+/* ── TAGS: CARREGAR PARA O FORMULÁRIO ──────────────────── */
+async function loadTagsForForm(selectedTags = []) {
+  try {
+    const { ok, data } = await api('/tags');
+    const container = document.getElementById('tagsGroup');
+    if (!ok || !data.length) {
+      container.innerHTML = '<span style="color:var(--gray-400);font-size:13px">Nenhuma categoria. Crie em "Categorias".</span>';
+      return;
+    }
+    container.innerHTML = data.map(t => `
+      <label class="tag-opt">
+        <input type="checkbox" name="tag" value="${t.slug}" ${selectedTags.includes(t.slug) ? 'checked' : ''}>
+        <span>${t.label}</span>
+      </label>
+    `).join('');
+  } catch(e) {
+    document.getElementById('tagsGroup').innerHTML = '<span style="color:var(--gray-400);font-size:13px">Erro ao carregar categorias.</span>';
+  }
+}
+
+/* ── TAGS: SEÇÃO DE GERENCIAMENTO ───────────────────────── */
+async function loadTagsSection() {
+  const list = document.getElementById('tagsList');
+  list.innerHTML = '<p style="color:var(--gray-400);font-size:13px">Carregando...</p>';
+  const { ok, data } = await api('/tags');
+  if (!ok) { list.innerHTML = '<p style="color:var(--danger);font-size:13px">Erro ao carregar.</p>'; return; }
+  if (!data.length) {
+    list.innerHTML = '<p style="color:var(--gray-400);font-size:13px">Nenhuma categoria cadastrada ainda.</p>';
+    return;
+  }
+  list.innerHTML = data.map(t => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--off-white);border:1px solid var(--gray-200);border-radius:9px">
+      <div>
+        <span style="font-weight:800;font-size:14px;color:var(--text)">${t.label}</span>
+        <span style="font-size:12px;color:var(--gray-400);margin-left:8px">• ${t.slug}</span>
+      </div>
+      <button class="btn-del" onclick="deleteTag('${t.slug}','${t.label.replace(/'/g,"\'")}')">🗑️ Excluir</button>
+    </div>
+  `).join('');
+}
+
+async function createTag() {
+  const input = document.getElementById('newTagLabel');
+  const msg   = document.getElementById('tagMsg');
+  const label = input.value.trim();
+  msg.style.display = 'none';
+
+  if (!label) {
+    msg.style.cssText = 'display:block;background:var(--danger-pale);color:var(--danger);margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700';
+    msg.textContent = 'Digite um nome para a categoria.';
+    return;
+  }
+
+  const { ok, data } = await api('/tags', 'POST', { label });
+  if (ok) {
+    input.value = '';
+    msg.style.cssText = 'display:block;background:var(--green-pale);color:var(--green);margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700';
+    msg.textContent = `✅ Categoria "${data.label}" criada!`;
+    loadTagsSection();
+    setTimeout(() => msg.style.display = 'none', 3000);
+  } else {
+    msg.style.cssText = 'display:block;background:var(--danger-pale);color:var(--danger);margin-top:12px;padding:10px 14px;border-radius:9px;font-size:13px;font-weight:700';
+    msg.textContent = data.error || 'Erro ao criar categoria.';
+  }
+}
+
+async function deleteTag(slug, label) {
+  if (!confirm(`Excluir a categoria "${label}"?\n\nEla vai sumir dos filtros do site, mas os projetos que a usam não serão alterados.`)) return;
+  const { ok, data } = await api('/tags/' + slug, 'DELETE');
+  if (ok) { toast(`Categoria "${label}" excluída`); loadTagsSection(); }
+  else toast(data.error || 'Erro ao excluir', 'err');
+}
+
+/* ── ALTERAR SENHA ──────────────────────────────────────── */
+async function changePassword(){
+  const cur  = document.getElementById('pwCurrent').value;
+  const nw   = document.getElementById('pwNew').value;
+  const conf = document.getElementById('pwConfirm').value;
+  const ok_  = document.getElementById('pwSuccess');
+  const err_ = document.getElementById('pwError');
+
+  ok_.classList.remove('show'); err_.classList.remove('show');
+
+  if(nw!==conf){ err_.textContent='As senhas não coincidem.'; err_.classList.add('show'); return; }
+  if(nw.length<6){ err_.textContent='A nova senha deve ter ao menos 6 caracteres.'; err_.classList.add('show'); return; }
+
+  const {ok, data} = await api('/auth/password','PUT',{currentPassword:cur,newPassword:nw});
+  if(ok){
+    ok_.classList.add('show');
+    ['pwCurrent','pwNew','pwConfirm'].forEach(id=>document.getElementById(id).value='');
+  } else {
+    err_.textContent = data.error||'Erro ao alterar a senha.';
+    err_.classList.add('show');
+  }
+}
+</script>
+</body>
+</html>
